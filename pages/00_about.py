@@ -13,7 +13,7 @@ with st.sidebar:
     st.image("https://img.icons8.com/bubbles/100/000000/user.png", width=100)
     st.header("Student Info")
     st.write("**Name:** Rizwan")
-    st.write("**Student ID:** 2310040027")
+    st.write("**Roll No:** 2310040027")
     st.write("**Course:** Optimization Techniques")
 
 # 🛠️ Dashboard Navigation Cards (Inspired by Prof's layout)
