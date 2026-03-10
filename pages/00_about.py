@@ -5,9 +5,12 @@ import time
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
-    /* Premium Typography */
+    /* Premium Typography - Excluding Icons to fix keyboard_double_right glitch */
     html, body, [class*="st-"] {
         font-family: 'Outfit', sans-serif !important;
+    }
+    .material-icons, .material-symbols-outlined, [data-testid="stSidebarCollapse"] i {
+        font-family: 'Material Icons' !important;
     }
 
     /* Animated Mesh Background */
@@ -86,19 +89,17 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Sequential Content Loading
-# (Title always loads first)
 st.markdown('<h1 class="gradient-text">🚀 Optimization Portfolio</h1>', unsafe_allow_html=True)
 
 # Typewriter Intro
 st.markdown(f"""
 <div class="typewriter">
-    <h3 style="color: #92FE9D; font-size: 1.2rem;">Hello, I am Rizwan — Roll No: 2310040027</h3>
+    <h3 style="color: #92FE9D; font-size: 1.2rem;">Rizwan — Roll No: 2310040027</h3>
 </div>
 """, unsafe_allow_html=True)
 
 st.markdown("""
-Welcome to my optimization portfolio! This application aggregates all the projects and assignments completed for the **Optimization in Engineering** course. 
-I have integrated interactive visualizations and solvers for various calculus and metaheuristic problems.
+Welcome to my optimization portfolio! This application aggregates all the projects and assignments completed for the **Optimization in Engineering** course.
 """)
 
 st.markdown("---")
