@@ -9,7 +9,13 @@ st.set_page_config(
 
 # Global CSS Injector for smooth transitions
 st.markdown("""
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
+    /* Global Premium Font */
+    html, body, [class*="st-"] {
+        font-family: 'Outfit', sans-serif !important;
+    }
+
     /* Global Page Fade-in */
     .main .block-container {
         animation: fadeIn 0.6s ease-in-out;
