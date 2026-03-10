@@ -5,12 +5,23 @@ import time
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
-    /* Premium Typography - Excluding Icons to fix keyboard_double_right glitch */
+    /* Premium Typography - Robust Fix for Icon Glitch */
     html, body, [class*="st-"] {
         font-family: 'Outfit', sans-serif !important;
     }
-    .material-icons, .material-symbols-outlined, [data-testid="stSidebarCollapse"] i {
+    
+    /* Ensure Streamlit Icons (Material Icons) are NOT overridden */
+    .material-icons, 
+    .material-symbols-outlined,
+    [data-testid="stSidebarNav"] span,
+    [data-testid="stSidebarCollapse"] span,
+    [data-testid="stSidebarCollapse"] i,
+    [data-testid="stSidebarCollapse"] svg,
+    [class*="st-emotion-cache"] i,
+    [class*="st-emotion-cache"] svg,
+    [class^="st-"] i {
         font-family: 'Material Icons' !important;
+        font-feature-settings: 'liga' !important;
     }
 
     /* Animated Mesh Background */
@@ -97,10 +108,6 @@ st.markdown(f"""
     <h3 style="color: #92FE9D; font-size: 1.2rem;">Rizwan — Roll No: 2310040027</h3>
 </div>
 """, unsafe_allow_html=True)
-
-st.markdown("""
-Welcome to my optimization portfolio! This application aggregates all the projects and assignments completed for the **Optimization in Engineering** course.
-""")
 
 st.markdown("---")
 

@@ -7,13 +7,26 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# Global CSS Injector for smooth transitions
+# Global CSS Injector for smooth transitions & Icon Fix
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
     /* Global Premium Font */
     html, body, [class*="st-"] {
         font-family: 'Outfit', sans-serif !important;
+    }
+
+    /* CRITICAL FIX: Ensure Streamlit Icons (Material Icons) render correctly */
+    .material-icons, 
+    .material-symbols-outlined,
+    [data-testid="stSidebarNav"] span,
+    [data-testid="stSidebarCollapse"] span,
+    [data-testid="stSidebarCollapse"] i,
+    [class*="st-emotion-cache"] i,
+    [class*="st-emotion-cache"] svg,
+    [class^="st-"] i {
+        font-family: 'Material Icons' !important;
+        font-feature-settings: 'liga' !important;
     }
 
     /* Global Page Fade-in */
