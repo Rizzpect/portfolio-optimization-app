@@ -14,7 +14,7 @@ with st.sidebar:
     st.header("Student Info")
     st.write("**Name:** Rizwan")
     st.write("**Roll No:** 2310040027")
-    st.write("**Course:** Optimization Techniques")
+    st.write("**Course:** Optimization in Engineering")
 
 # 🛠️ Dashboard Navigation Cards (Inspired by Prof's layout)
 st.subheader("Explore Modules")
