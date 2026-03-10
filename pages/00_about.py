@@ -24,6 +24,25 @@ st.markdown("""
         font-feature-settings: 'liga' !important;
     }
 
+    /* AGGRESSIVE SIDEBAR LOCK: Hide all possible toggle/collapse buttons */
+    section[data-testid="stSidebar"] > div {
+        visibility: visible !important;
+    }
+    [data-testid="stSidebarCollapse"], 
+    [data-testid="collapsedControl"],
+    button[kind="header"] {
+        display: none !important;
+    }
+    
+    /* Ensure the sidebar doesn't hide via translate transform if Streamlit tries to close it */
+    section[data-testid="stSidebar"] {
+        transform: none !important;
+        transition: none !important;
+    }
+    header[data-testid="stHeader"] {
+        display: none !important;
+    }
+
     /* Animated Mesh Background */
     .stApp {
         background: radial-gradient(circle at 10% 20%, rgba(0, 201, 255, 0.05) 0%, transparent 40%),

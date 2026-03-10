@@ -29,8 +29,13 @@ st.markdown("""
         font-feature-settings: 'liga' !important;
     }
 
-    /* HIDE SIDEBAR TOGGLE & NAVIGATION HEADERS */
-    [data-testid="stSidebarCollapse"] {
+    /* AGGRESSIVE SIDEBAR LOCK: Hide all possible toggle/collapse buttons */
+    section[data-testid="stSidebar"] > div {
+        visibility: visible !important;
+    }
+    [data-testid="stSidebarCollapse"], 
+    [data-testid="collapsedControl"],
+    button[kind="header"] {
         display: none !important;
     }
     [data-testid="stSidebarNavItems"] ul {
@@ -38,6 +43,12 @@ st.markdown("""
     }
     header[data-testid="stHeader"] {
         display: none !important;
+    }
+    
+    /* Ensure the sidebar doesn't hide via translate transform if Streamlit tries to close it */
+    section[data-testid="stSidebar"] {
+        transform: none !important;
+        transition: none !important;
     }
 
     /* Global Page Fade-in */
