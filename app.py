@@ -29,13 +29,9 @@ st.markdown("""
         font-feature-settings: 'liga' !important;
     }
 
-    /* AGGRESSIVE SIDEBAR LOCK: Hide all possible toggle/collapse buttons */
-    section[data-testid="stSidebar"] > div {
-        visibility: visible !important;
-    }
+    /* SIDEBAR LOCK: Hide toggle buttons and header for a cleaner look */
     [data-testid="stSidebarCollapse"], 
-    [data-testid="collapsedControl"],
-    button[kind="header"] {
+    [data-testid="collapsedControl"] {
         display: none !important;
     }
     [data-testid="stSidebarNavItems"] ul {
@@ -45,10 +41,10 @@ st.markdown("""
         display: none !important;
     }
     
-    /* Ensure the sidebar doesn't hide via translate transform if Streamlit tries to close it */
-    section[data-testid="stSidebar"] {
-        transform: none !important;
-        transition: none !important;
+    /* Ensure Sidebar stays visible but maintains its default width */
+    [data-testid="stSidebar"] {
+        min-width: 280px !important;
+        max-width: 280px !important;
     }
 
     /* Global Page Fade-in */
