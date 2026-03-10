@@ -1,0 +1,51 @@
+Model_Name,Cost_USD,GPU_Efficiency_Score
+MSI Katana 15 HX,850,42
+Acer Nitro V 16 AI,870,41
+Lenovo LOQ 15,920,40
+HP Victus 16,950,44
+Dell G15 Elite,960,43
+ASUS TUF Gaming F15,980,42
+Lenovo Legion 5i,1000,52
+Gigabyte G5 Pro,1050,48
+HP Omen 16,1100,50
+MSI Pulse 17,1150,49
+Acer Predator Helios Neo,1200,51
+ASUS ROG Zephyrus G14,1250,65
+Razer Blade 14 (Base),1300,60
+Alienware m16 R3,1350,62
+Lenovo Legion Pro 7i,1400,64
+ASUS ROG Strix G16,1450,63
+MSI Stealth 16 AI,1500,61
+HP Omen Transcend 14,1550,59
+Razer Blade 16,1600,63
+Alienware x16,1650,62
+ASUS ROG Scar 18,1700,78
+MSI Titan GT77,1750,76
+Razer Blade 18,1800,77
+Samsung Galaxy Book5 Ultra,1850,70
+LG Gram Pro 16,1900,65
+Microsoft Surface Laptop 7,1950,68
+Apple MacBook Pro 14,2000,75
+Apple MacBook Pro 16,2100,76
+Framework Laptop 16,2200,70
+Corsair Voyager a1600,2300,69
+Origin PC EVO16-S,2400,72
+Eluktronics Prometheus XVI,2500,74
+Sager NP8858,2600,73
+Xotic PC Phantom,2700,75
+Falcon Northwest TLX,2800,76
+Digital Storm Banshee,2900,77
+Maingear Vector Pro,3000,78
+CyberPowerPC Tracer,1020,45
+iBUYPOWER Chimera,1120,47
+Skytech Gaming Azure,1220,55
+Velocity Micro Signature,1320,58
+Mainframe Custom,1420,60
+Puget Systems Workstation,3500,85
+Falcon NW FragBox,3100,79
+Xidax X-6,3200,80
+CLX Ra,3300,81
+Digital Storm Velox,3400,82
+AVADirect Clevo,1000,40
+System76 Oryx Pro,2100,72
+Tuxedo Stellaris,2200,73
