@@ -44,10 +44,32 @@ st.markdown("""
         display: none !important;
     }
     
-    /* Ensure Sidebar stays visible but maintains its default width */
+    /* Ensure Sidebar stays visible and CANNOT be collapsed */
     [data-testid="stSidebar"] {
         min-width: 280px !important;
         max-width: 280px !important;
+        width: 280px !important;
+        transform: none !important;
+        transition: none !important;
+        visibility: visible !important;
+        display: flex !important;
+        position: relative !important;
+    }
+    /* Override Streamlit's collapsed state — force sidebar open */
+    [data-testid="stSidebar"][aria-expanded="false"] {
+        min-width: 280px !important;
+        max-width: 280px !important;
+        width: 280px !important;
+        transform: none !important;
+        margin-left: 0 !important;
+        left: 0 !important;
+        display: flex !important;
+        visibility: visible !important;
+    }
+    /* Prevent the main content from expanding full-width when sidebar collapses */
+    .stAppViewBlockContainer,
+    [data-testid="stAppViewBlockContainer"] {
+        margin-left: 280px !important;
     }
 
     /* COMPACT NAV */
