@@ -4,6 +4,9 @@ st.title("🚀 Optimization Portfolio")
 st.markdown("""
 Welcome to my optimization portfolio! This application aggregates all the projects and assignments completed for the Optimization course. 
 I have integrated interactive visualizations and solvers for various calculus and metaheuristic problems.
+
+**Name:** Rizwan  
+**Roll No:** 2310040027
 """)
 
 st.markdown("---")
