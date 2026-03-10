@@ -29,6 +29,17 @@ st.markdown("""
         font-feature-settings: 'liga' !important;
     }
 
+    /* HIDE SIDEBAR TOGGLE & NAVIGATION HEADERS */
+    [data-testid="stSidebarCollapse"] {
+        display: none !important;
+    }
+    [data-testid="stSidebarNavItems"] ul {
+        padding-top: 0rem !important;
+    }
+    header[data-testid="stHeader"] {
+        display: none !important;
+    }
+
     /* Global Page Fade-in */
     .main .block-container {
         animation: fadeIn 0.6s ease-in-out;
@@ -52,12 +63,16 @@ task7_page = st.Page("pages/07_simulated_annealing.py", title="Simulated Anneali
 
 
 pg = st.navigation(
-    {
-        "Overview": [about_page],
-        "Calculus & Optimization": [task1_page, task2_page, task4_page, task5_page],
-        "Multi-Objective Optimization": [task3_page],
-        "Metaheuristic Algorithms": [task6_page, task7_page],
-    }
+    [
+        about_page,
+        task1_page,
+        task2_page,
+        task3_page,
+        task4_page,
+        task5_page,
+        task6_page,
+        task7_page
+    ]
 )
 
 pg.run()
