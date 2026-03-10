@@ -35,6 +35,26 @@ st.markdown("""
         min-width: 280px !important;
         max-width: 280px !important;
     }
+    
+    /* DISABLE SIDEBAR SCROLLING & COMPACT EVERYTHING */
+    [data-testid="stSidebar"] section {
+        overflow: hidden !important;
+    }
+    [data-testid="stSidebarNavItems"] {
+        padding-top: 0px !important;
+    }
+    [data-testid="stSidebarNavItems"] li {
+        margin-bottom: -5px !important;
+    }
+    [data-testid="stSidebarNavItems"] a {
+        padding-top: 4px !important;
+        padding-bottom: 4px !important;
+    }
+    [data-testid="stSidebarUserContent"] {
+        padding-top: 0rem !important;
+        padding-bottom: 0rem !important;
+    }
+
     header[data-testid="stHeader"] {
         display: none !important;
     }
@@ -126,11 +146,17 @@ st.markdown(f"""
 
 st.markdown("---")
 
-# 👤 Student Info in Sidebar
+# 👤 Student Info in Sidebar (Compact Version)
 with st.sidebar:
-    st.image("https://img.icons8.com/bubbles/100/000000/user.png", width=120)
-    st.header("Student Info")
-    st.info(f"**Name:** Rizwan\n\n**Roll No:** 2310040027\n\n**Course:** Optimization in Engineering")
+    st.image("https://img.icons8.com/bubbles/100/000000/user.png", width=100)
+    st.markdown(f"""
+    <div style="font-size: 0.85rem; line-height: 1.2; padding-top: 10px;">
+    <strong>Name:</strong> Rizwan<br>
+    <strong>Roll No:</strong> 2310040027<br>
+    <strong>Course:</strong> Optimization
+    </div>
+    """, unsafe_allow_html=True)
+    st.markdown("---")
 
 # 🛠️ Dashboard Navigation Cards (Wrapped in Animation Classes)
 st.subheader("Explore Modules")

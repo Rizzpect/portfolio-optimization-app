@@ -47,6 +47,21 @@ st.markdown("""
         max-width: 280px !important;
     }
 
+    /* DISABLE SIDEBAR SCROLLING & COMPACT NAV */
+    [data-testid="stSidebar"] section {
+        overflow: hidden !important;
+    }
+    [data-testid="stSidebarNavItems"] {
+        padding-top: 0px !important;
+    }
+    [data-testid="stSidebarNavItems"] li {
+        margin-bottom: -5px !important; /* Compact links */
+    }
+    [data-testid="stSidebarNavItems"] a {
+        padding-top: 4px !important;
+        padding-bottom: 4px !important;
+    }
+
     /* Global Page Fade-in */
     .main .block-container {
         animation: fadeIn 0.6s ease-in-out;
