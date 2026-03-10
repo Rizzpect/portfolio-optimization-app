@@ -168,7 +168,7 @@ with st.sidebar:
     <div style="font-size: 0.85rem; line-height: 1.2; padding-top: 10px;">
     <strong>Name:</strong> Rizwan<br>
     <strong>Roll No:</strong> 2310040027<br>
-    <strong>Course:</strong> Optimization
+    <strong>Course:</strong> Optimization in Engineering
     </div>
     """, unsafe_allow_html=True)
     st.markdown("---")
