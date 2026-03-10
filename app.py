@@ -7,6 +7,20 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+# Global CSS Injector for smooth transitions
+st.markdown("""
+<style>
+    /* Global Page Fade-in */
+    .main .block-container {
+        animation: fadeIn 0.6s ease-in-out;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # Define pages for multi-page app
 about_page = st.Page("pages/00_about.py", title="About Me", icon="👤", default=True)
 task1_page = st.Page("pages/01_1d_critical.py", title="1D Critical Points", icon="📈")
