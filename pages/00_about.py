@@ -24,32 +24,7 @@ st.markdown("""
         font-feature-settings: 'liga' !important;
     }
 
-    /* SIDEBAR LOCK: Hide toggle buttons and header for a cleaner look */
-    [data-testid="stSidebarCollapse"], 
-    [data-testid="collapsedControl"] {
-        display: none !important;
-    }
-    
-    /* Ensure Sidebar stays visible but maintains its default width */
-    [data-testid="stSidebar"] {
-        min-width: 280px !important;
-        max-width: 280px !important;
-    }
-    
-    /* DISABLE SIDEBAR SCROLLING & COMPACT EVERYTHING */
-    [data-testid="stSidebar"] section {
-        overflow: hidden !important;
-    }
-    [data-testid="stSidebarNavItems"] {
-        padding-top: 0px !important;
-    }
-    [data-testid="stSidebarNavItems"] li {
-        margin-bottom: -5px !important;
-    }
-    [data-testid="stSidebarNavItems"] a {
-        padding-top: 4px !important;
-        padding-bottom: 4px !important;
-    }
+    /* Sidebar user content spacing */
     [data-testid="stSidebarUserContent"] {
         padding-top: 0rem !important;
         padding-bottom: 0rem !important;

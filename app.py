@@ -47,15 +47,15 @@ st.markdown("""
         max-width: 280px !important;
     }
 
-    /* DISABLE SIDEBAR SCROLLING & COMPACT NAV */
+    /* COMPACT NAV */
     [data-testid="stSidebar"] section {
-        overflow: hidden !important;
+        overflow-y: auto !important;
     }
     [data-testid="stSidebarNavItems"] {
         padding-top: 0px !important;
     }
     [data-testid="stSidebarNavItems"] li {
-        margin-bottom: -5px !important; /* Compact links */
+        margin-bottom: 0px !important;
     }
     [data-testid="stSidebarNavItems"] a {
         padding-top: 4px !important;
