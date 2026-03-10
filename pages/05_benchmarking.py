@@ -2,7 +2,7 @@ import streamlit as st
 import numpy as np
 
 st.title("📊 Optimization Benchmarking")
-st.markdown("Benchmark gradient-based optimization algorithms (Steepest Descent, Newton's Method, Conjugate Gradient) on complex functions like **Rosenbrock** and **Ackley**.")
+st.markdown("Benchmark gradient-based optimization algorithms on high-dimensional complex functions.")
 
 # ---------------------------------------------------------------------
 # Math Functions
@@ -122,18 +122,16 @@ st.sidebar.header("Benchmark Settings")
 
 func_choice = st.sidebar.selectbox("Test Function", ["Rosenbrock Function", "Ackley Function"])
 dimensions = st.sidebar.slider("Dimensions (n)", 2, 50, 10)
-start_pt = st.sidebar.selectbox("Starting Point", ["Zeros (0, 0, ...)", "Ones (1, 1, ...)", "Random", "Far (2.0)"])
+start_pt = st.sidebar.selectbox("Starting Point", ["Zeros (0, 0, ...)", "Ones (1, 1, ...)", "Far (2.0)"])
 
-if st.sidebar.button("Run Benchmark"):
+if st.sidebar.button("Run Benchmark Analysis", type="primary", use_container_width=True):
     with st.spinner(f"Running benchmarks on {func_choice} in {dimensions}D..."):
         if start_pt == "Zeros (0, 0, ...)":
             x0 = np.zeros(dimensions)
         elif start_pt == "Ones (1, 1, ...)":
             x0 = np.ones(dimensions)
-        elif start_pt == "Far (2.0)":
-            x0 = np.ones(dimensions) * 2.0
         else:
-            x0 = np.random.uniform(-5, 5, dimensions)
+            x0 = np.ones(dimensions) * 2.0
             
         if func_choice == "Rosenbrock Function":
             f, g, h = rosenbrock, rosenbrock_grad, rosenbrock_hess
@@ -159,15 +157,15 @@ if st.sidebar.button("Run Benchmark"):
         x_cg, fval_cg, iter_cg = conjugate_gradient(f, g, x0)
         results.append({"Method": "Conjugate Gradient", "Iterations": iter_cg, "Final f(x)": fval_cg, "Minima": fmt_coord(x_cg)})
         
-    st.subheader(f"Results for {func_choice}")
-    st.write(f"**Dimensions:** {dimensions} | **Starting Point:** {fmt_coord(x0)}")
+    st.subheader(f"Comparison: {func_choice} ({dimensions}D)")
     st.dataframe(results, use_container_width=True)
     
+    st.markdown("---")
+    st.subheader("Key Observations")
     if func_choice == "Ackley Function":
-        st.info("""
-        **Analysis on Ackley Function**:
-        The Ackley function is highly non-convex with many local minima. 
-        All gradient-based methods (SD, Newton, CG) can get trapped in these local minima depending on the starting point. Only starting points sufficiently close to the global minimum at (0, 0, ..., 0) will converge to it.
-        """)
+        st.info("The Ackley function is highly non-convex. Gradient methods often get trapped in local minima unless the starting point is near (0,0).")
+    else:
+        st.info("The Rosenbrock function has a long, narrow parabolic valley. While the minimum is at (1,1,...), convergence can be slow for simple gradient descent.")
+
 else:
-    st.info("Select benchmark configurations from the sidebar and click 'Run Benchmark'.")
+    st.info("Select benchmark configurations from the sidebar and click 'Run Benchmark Analysis'.")

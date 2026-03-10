@@ -1,138 +1,153 @@
 import streamlit as st
-import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
+import io
 import os
 
-st.title("⚖️ Pareto Front Optimization")
-st.markdown("Identify non-dominated (Pareto optimal) solutions from a given dataset based on conflicting multi-objective metrics.")
+st.title("⚖️ Multi-Objective Optimization — Pareto Front")
+st.markdown("Use the built-in datasets (Laptops/Smartphones) or upload your own CSV to find the **Pareto Optimal** solutions.")
 
-st.sidebar.header("Dataset Selection")
-dataset_option = st.sidebar.radio(
-    "Choose a dataset:",
-    ("Laptops", "Smartphones")
-)
+# ── Pareto logic ──────────────────────────────────────────────────────────────
+def find_pareto(costs):
+    """
+    costs: 2D array where each column is an objective to MINIMIZE.
+    Returns boolean mask — True = Pareto optimal.
+    """
+    n = costs.shape[0]
+    is_efficient = np.ones(n, dtype=bool)
+    for i in range(n):
+        if not is_efficient[i]:
+            continue
+        dominated = np.all(costs <= costs[i], axis=1) & np.any(costs < costs[i], axis=1)
+        dominated[i] = False
+        is_efficient[dominated] = False
+    return is_efficient
 
-# Load dataset
-data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
-if dataset_option == "Laptops":
-    file_path = os.path.join(data_dir, "Laptop_Model.csv")
-    if os.path.exists(file_path):
-        df = pd.read_csv(file_path)
+# ── Sidebar ───────────────────────────────────────────────────────────────────
+with st.sidebar:
+    st.header("Data Source")
+    use_default = st.radio("Dataset", ["Built-in Laptops", "Built-in Smartphones", "Upload CSV"])
+    uploaded = None
+    if use_default == "Upload CSV":
+        uploaded = st.file_uploader("Upload CSV", type=["csv"])
+
+    st.markdown("---")
+    st.header("Objectives")
+    st.caption("Select two columns and their optimization direction.")
+
+# ── Load data ─────────────────────────────────────────────────────────────────
+data_path = "data/"
+if use_default == "Upload CSV" and uploaded is not None:
+    df = pd.read_csv(uploaded)
+    st.success(f"Loaded {len(df)} rows from uploaded file.")
+elif use_default == "Built-in Laptops":
+    if os.path.exists(os.path.join(data_path, "Laptop_Model.csv")):
+        df = pd.read_csv(os.path.join(data_path, "Laptop_Model.csv"))
     else:
-        st.error(f"Dataset not found at {file_path}")
-        df = pd.DataFrame()
+        st.error("Laptop dataset not found in data/ directory.")
+        st.stop()
 else:
-    file_path = os.path.join(data_dir, "Smartphone_Model.csv")
-    if os.path.exists(file_path):
-        df = pd.read_csv(file_path)
+    if os.path.exists(os.path.join(data_path, "Smartphone_Model.csv")):
+        df = pd.read_csv(os.path.join(data_path, "Smartphone_Model.csv"))
     else:
-        st.error(f"Dataset not found at {file_path}")
-        df = pd.DataFrame()
+        st.error("Smartphone dataset not found in data/ directory.")
+        st.stop()
 
-if not df.empty:
-    st.subheader(f"{dataset_option} Dataset")
-    st.dataframe(df.head(10), use_container_width=True)
+st.subheader("Dataset Preview")
+st.dataframe(df, use_container_width=True)
+
+numeric_cols = df.select_dtypes(include=np.number).columns.tolist()
+
+if len(numeric_cols) < 2:
+    st.error("Need at least 2 numeric columns for multi-objective optimization.")
+    st.stop()
+
+with st.sidebar:
+    obj1_col = st.selectbox("Objective 1 (X axis)", numeric_cols, index=0)
+    obj1_dir = st.radio("Direction 1", ["Minimize", "Maximize"], index=0, horizontal=True)
+    obj2_col = st.selectbox("Objective 2 (Y axis)", numeric_cols,
+                             index=1 if len(numeric_cols) > 1 else 0)
+    obj2_dir = st.radio("Direction 2", ["Minimize", "Maximize"], index=0, horizontal=True)
     
-    # Let user select objectives
-    st.sidebar.subheader("Objective Configuration")
-    all_numeric_cols = df.select_dtypes(include=np.number).columns.tolist()
+    label_candidates = ["(none)"] + df.select_dtypes(exclude=np.number).columns.tolist()
+    label_col = st.selectbox("Label column (optional)", label_candidates)
     
-    # Auto-detect sensible defaults based on dataset
-    default_min = []
-    default_max = []
-    if dataset_option == "Laptops":
-        default_min = ["Price ($)", "Weight (kg)"] if "Price ($)" in all_numeric_cols else []
-        default_max = ["Performance Score (out of 100)", "Battery Life (hours)"] if "Performance Score (out of 100)" in all_numeric_cols else []
-    else:
-        default_min = ["Price ($)", "Weight (grams)"] if "Price ($)" in all_numeric_cols else []
-        default_max = ["Performance Score (out of 100)", "Battery Life (hours)"] if "Performance Score (out of 100)" in all_numeric_cols else []
-        
-    # Filter valid columns
-    default_min = [c for c in default_min if c in all_numeric_cols]
-    default_max = [c for c in default_max if c in all_numeric_cols]
-        
-    minimize_cols = st.sidebar.multiselect("Objectives to Minimize:", all_numeric_cols, default=default_min)
-    maximize_cols = st.sidebar.multiselect("Objectives to Maximize:", all_numeric_cols, default=default_max)
+    run_btn = st.button("Calculate Pareto Front", type="primary", use_container_width=True)
+
+st.markdown("---")
+
+# ── Run Algorithm ─────────────────────────────────────────────────────────────
+if run_btn:
+    v1 = df[obj1_col].values.astype(float)
+    v2 = df[obj2_col].values.astype(float)
+
+    # Flip values to minimize if user chose 'Maximize'
+    c1 = v1 if obj1_dir == "Minimize" else -v1
+    c2 = v2 if obj2_dir == "Minimize" else -v2
+    costs = np.column_stack([c1, c2])
+
+    mask = find_pareto(costs)
+    df["Pareto"] = mask
+    pareto_df   = df[mask].copy()
+    dominated_df = df[~mask].copy()
+
+    # ── Summary Metrics ───────────────────────────────────────────────────────────
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Total items", len(df))
+    col2.metric("Pareto Efficient", int(mask.sum()))
+    col3.metric("Dominated", int((~mask).sum()))
+
+    # ── Visualization ───────────────────────────────────────────────────────────
+    st.subheader("Visualizing Trade-offs")
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    # Plot dominated points
+    ax.scatter(dominated_df[obj1_col], dominated_df[obj2_col],
+               c="lightgrey", edgecolors="grey", s=60, alpha=0.5, label="Dominated", zorder=2)
     
-    if st.sidebar.button("Calculate Pareto Front"):
-        if not minimize_cols and not maximize_cols:
-            st.warning("Please select at least one objective.")
-        elif len(minimize_cols) + len(maximize_cols) < 2:
-            st.warning("Please select at least two objectives to find trade-offs.")
-        else:
-            with st.spinner("Finding Pareto optimal solutions..."):
-                def is_dominated(row1, row2, min_cols, max_cols):
-                    """Returns True if row1 is dominated by row2."""
-                    dominated_min = all(row2[col] <= row1[col] for col in min_cols) and any(row2[col] < row1[col] for col in min_cols)
-                    dominated_max = all(row2[col] >= row1[col] for col in max_cols) and any(row2[col] > row1[col] for col in max_cols)
-                    
-                    if not min_cols: return dominated_max
-                    if not max_cols: return dominated_min
-                    
-                    # Both min and max conditions must hold or be equal, and at least one must be strictly better
-                    all_as_good_or_better = all(row2[col] <= row1[col] for col in min_cols) and all(row2[col] >= row1[col] for col in max_cols)
-                    strictly_better = any(row2[col] < row1[col] for col in min_cols) or any(row2[col] > row1[col] for col in max_cols)
-                    
-                    return all_as_good_or_better and strictly_better
-                
-                n = len(df)
-                is_pareto = np.ones(n, dtype=bool)
-                
-                for i in range(n):
-                    if not is_pareto[i]: continue
-                    for j in range(n):
-                        if i == j or not is_pareto[j]: continue
-                        if is_dominated(df.iloc[i], df.iloc[j], minimize_cols, maximize_cols):
-                            is_pareto[i] = False
-                            break
-                            
-                pareto_df = df[is_pareto].copy()
-            
-            st.success(f"Found {len(pareto_df)} Pareto optimal solutions out of {n} total.")
-            
-            st.subheader("🏆 Pareto Optimal Set")
-            st.dataframe(pareto_df, use_container_width=True)
-            
-            # Visualization (2D scatter if exactly 2 objectives are selected, otherwise pick first two)
-            selected_objs = minimize_cols + maximize_cols
-            if len(selected_objs) >= 2:
-                obj_x = selected_objs[0]
-                obj_y = selected_objs[1]
-                
-                st.subheader(f"Visualization: {obj_x} vs {obj_y}")
-                
-                fig, ax = plt.subplots(figsize=(10, 6))
-                
-                # Plot dominated points
-                dominated_df = df[~is_pareto]
-                ax.scatter(dominated_df[obj_x], dominated_df[obj_y], color='gray', alpha=0.5, label='Dominated')
-                
-                # Plot Pareto points
-                ax.scatter(pareto_df[obj_x], pareto_df[obj_y], color='red', s=60, label='Pareto Optimal')
-                
-                # Annotate Pareto points (if text column exists)
-                model_col_candidates = [col for col in df.columns if 'Model' in str(col) or df[col].dtype == object]
-                if model_col_candidates:
-                    model_col = model_col_candidates[0]
-                    for idx, row in pareto_df.iterrows():
-                        ax.annotate(row[model_col], (row[obj_x], row[obj_y]), 
-                                  xytext=(5, 5), textcoords='offset points', 
-                                  fontsize=8, alpha=0.8)
-                
-                ax.set_xlabel(obj_x)
-                ax.set_ylabel(obj_y)
-                ax.set_title(f"Pareto Front ({obj_x} vs {obj_y})")
-                
-                # Direction of goodness
-                # Add arrows indicating direction
-                x_dir = -1 if obj_x in minimize_cols else 1
-                y_dir = -1 if obj_y in minimize_cols else 1
-                
-                # Adjust axes to show the ideal direction
-                ax.legend()
-                ax.grid(True, alpha=0.3)
-                
-                st.pyplot(fig)
-            else:
-                st.info("Select at least 2 numeric objectives to see a scatter plot visualization.")
+    # Plot Pareto points
+    ax.scatter(pareto_df[obj1_col], pareto_df[obj2_col],
+               c="crimson", edgecolors="black", s=100, label="Pareto Front", zorder=3)
+
+    # Draw the front line
+    # Depending on directions, the front line looks different.
+    # Simple staircase for sorted points
+    pf_sorted = pareto_df.sort_values(by=obj1_col)
+    ax.step(pf_sorted[obj1_col], pf_sorted[obj2_col], where='post', color="red", alpha=0.4, linestyle="--", zorder=2)
+
+    # Annotate points if requested
+    if label_col != "(none)":
+        for _, row in pareto_df.iterrows():
+            ax.annotate(str(row[label_col]),
+                        (row[obj1_col], row[obj2_col]),
+                        xytext=(5, 5), textcoords="offset points",
+                        fontsize=9, color="darkred")
+
+    ax.set_xlabel(f"{obj1_col} ({obj1_dir})", fontsize=11)
+    ax.set_ylabel(f"{obj2_col} ({obj2_dir})", fontsize=11)
+    ax.set_title("Pareto Front Boundary", fontsize=13)
+    ax.legend()
+    ax.grid(True, linestyle=":", alpha=0.5)
+    st.pyplot(fig)
+
+    # ── Detailed Pareto Results ──────────────────────────────────────────────────────────
+    st.subheader("Optimal Candidates Table")
+    display_cols = ([label_col] if label_col != "(none)" else []) + [obj1_col, obj2_col]
+    st.dataframe(pareto_df[display_cols].reset_index(drop=True), use_container_width=True)
+
+    # ── Export ──────────────────────────────────────────────────────────────
+    csv_buf = io.StringIO()
+    pareto_df.to_csv(csv_buf, index=False)
+    st.download_button("📥 Download Pareto Solutions (CSV)",
+                       data=csv_buf.getvalue(),
+                       file_name="pareto_optimization_results.csv",
+                       mime="text/csv",
+                       use_container_width=True)
+else:
+    st.info("Choose objectives in the sidebar and click **Calculate Pareto Front**.")
+    st.markdown("""
+    **Understanding the Pareto Front:**
+    - A point is **Pareto optimal** if you cannot improve one objective (e.g., lower price) without worsening another (e.g., lower performance).
+    - The points in red represent the *best trade-offs* available in your dataset.
+    """)

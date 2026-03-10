@@ -1,5 +1,6 @@
 import streamlit as st
 import random
+import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -12,10 +13,10 @@ st.markdown("Solve the **0/1 Knapsack Problem** using a Genetic Algorithm. Adjus
 st.sidebar.header("GA Parameters")
 
 max_weight = st.sidebar.slider("Max weight (kg)", 5.0, 30.0, 15.0, 0.5)
-population_size = st.sidebar.slider("Population size", 10, 100, 20, 1)
-generations = st.sidebar.slider("Generations", 10, 200, 50, 1)
+population_size = st.sidebar.slider("Population size", 10, 100, 30, 1)
+generations = st.sidebar.slider("Generations", 10, 200, 60, 1)
 mutation_rate = st.sidebar.slider("Mutation rate", 0.01, 0.50, 0.05, 0.01)
-crossover_rate = st.sidebar.slider("Crossover rate", 0.50, 1.00, 0.80, 0.01)
+crossover_rate = st.sidebar.slider("Crossover rate", 0.50, 1.00, 0.80, 0.05)
 tournament_size = st.sidebar.slider("Tournament size", 2, 10, 3, 1)
 random_seed = st.sidebar.number_input("Random seed", value=42)
 
@@ -77,11 +78,7 @@ def crossover(p1, p2, rate):
     return p1[:cut] + p2[cut:]
 
 def mutate(chromosome, rate):
-    result = chromosome[:]
-    for i in range(NUM_ITEMS):
-        if random.random() < rate:
-            result[i] = 1 - result[i]
-    return result
+    return [1 - g if random.random() < rate else g for g in chromosome]
 
 def run_ga():
     random.seed(random_seed)
@@ -91,22 +88,26 @@ def run_ga():
         for _ in range(population_size)
     ]
 
-    best_chromosome = None
-    best_value      = -1
-    value_log       = []
+    best_chrom_ever = None
+    best_val_ever   = -1
+    
+    bv_log, av_log, div_log = [], [], []
 
     for _ in range(generations):
         fitnesses = [fitness(c) for c in population]
+        best_i = max(range(population_size), key=lambda i: fitnesses[i])
+        
+        if fitnesses[best_i] > best_val_ever:
+            best_val_ever   = fitnesses[best_i]
+            best_chrom_ever = population[best_i][:]
 
-        gen_best_i = max(range(population_size), key=lambda i: fitnesses[i])
-        if fitnesses[gen_best_i] > best_value:
-            best_value      = fitnesses[gen_best_i]
-            best_chromosome = population[gen_best_i][:]
-
-        value_log.append(best_value)
+        bv_log.append(best_val_ever)
+        valid_fits = [f for f in fitnesses if f > 0]
+        av_log.append(np.mean(valid_fits) if valid_fits else 0)
+        div_log.append(len(set(tuple(c) for c in population)) / population_size)
 
         # Elitism
-        next_gen = [best_chromosome[:]]
+        next_gen = [best_chrom_ever[:]]
         while len(next_gen) < population_size:
             p1    = tournament_select(population, fitnesses, tournament_size)
             p2    = tournament_select(population, fitnesses, tournament_size)
@@ -116,46 +117,98 @@ def run_ga():
 
         population = next_gen
 
-    return best_chromosome, best_value, value_log
+    return best_chrom_ever, best_val_ever, bv_log, av_log, div_log
 
 # =============================================================================
 # EXECUTION & RESULTS
 # =============================================================================
-if st.sidebar.button("Run Algorithm"):
-    with st.spinner("Running Genetic Algorithm..."):
-        best_chr, best_val, val_log = run_ga()
+if st.sidebar.button("Run Genetic Algorithm", type="primary", use_container_width=True):
+    with st.spinner("Evolving population..."):
+        best_chr, best_val, bv_log, av_log, div_log = run_ga()
         
-    st.subheader("Results")
+    st.subheader("Final Results")
     
     total_weight = sum(WEIGHTS[i] for i in range(NUM_ITEMS) if best_chr[i] == 1)
     packed_items = [NAMES[i] for i in range(NUM_ITEMS) if best_chr[i] == 1]
     valid = total_weight <= max_weight
     
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Total Value", best_val)
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Best Value", best_val)
     col2.metric("Total Weight", f"{total_weight:.1f} kg")
-    col3.metric("Capacity", f"{max_weight:.1f} kg")
+    col3.metric("Status", "✅ Valid" if valid else "❌ Invalid")
+    col4.metric("Items Packed", sum(best_chr))
     
-    if not valid:
-        st.error(f"Invalid solution! Weight exceeded maximum capacity.")
-    else:
-        st.success("Valid packing configuration found!")
-        
-    st.markdown("### Packed Items")
-    df_packed = pd.DataFrame({
-        "Item": packed_items,
-        "Weight": [WEIGHTS[NAMES.index(i)] for i in packed_items],
-        "Value": [VALUES[NAMES.index(i)] for i in packed_items]
-    })
-    st.dataframe(df_packed, use_container_width=True)
-    
-    st.markdown("### GA Convergence")
-    fig, ax = plt.subplots(figsize=(10, 4))
-    ax.plot(val_log, color="seagreen", linewidth=2, marker="o", markersize=3)
-    ax.set_xlabel("Generation")
-    ax.set_ylabel("Best Value")
-    ax.set_title(f"GA Convergence (Mutation={mutation_rate}, Pop={population_size})")
-    ax.grid(True, alpha=0.3)
+    # --- Advanced Visualizations (Inspired by Prof's layout) ---
+    st.subheader("GA Performance Analysis")
+    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+
+    # Plot 1: Best vs Avg
+    axes[0].plot(bv_log, color="seagreen", linewidth=2, label="Best Value")
+    axes[0].plot(av_log, color="steelblue", linewidth=1.5, linestyle="--", label="Avg Value")
+    axes[0].set_title("Convergence Rate")
+    axes[0].set_xlabel("Generation")
+    axes[0].legend()
+    axes[0].grid(True, alpha=0.3)
+
+    # Plot 2: Improvement per Generation
+    deltas = [bv_log[i] - (bv_log[i-1] if i > 0 else 0) for i in range(len(bv_log))]
+    axes[1].bar(range(len(bv_log)), deltas, color="coral", alpha=0.7)
+    axes[1].set_title("Value Improvement")
+    axes[1].set_xlabel("Generation")
+    axes[1].grid(True, alpha=0.3)
+
+    # Plot 3: Diversity
+    axes[2].plot(div_log, color="purple", linewidth=2)
+    axes[2].set_title("Population Diversity")
+    axes[2].set_xlabel("Generation")
+    axes[2].set_ylabel("Unique/Total")
+    axes[2].grid(True, alpha=0.3)
+
+    plt.tight_layout()
     st.pyplot(fig)
+
+    st.markdown("---")
+    
+    c_left, c_right = st.columns([1, 1])
+    
+    with c_left:
+        st.subheader("Best Packing Details")
+        df_packed = pd.DataFrame({
+            "Item": NAMES,
+            "Weight": WEIGHTS,
+            "Value": VALUES,
+            "Packed": ["✅" if best_chr[i] else "❌" for i in range(NUM_ITEMS)]
+        })
+        st.dataframe(df_packed, use_container_width=True)
+    
+    with c_right:
+        st.subheader("Composition of Value")
+        packed_vals = [VALUES[i] for i in range(NUM_ITEMS) if best_chr[i] == 1]
+        packed_names = [NAMES[i] for i in range(NUM_ITEMS) if best_chr[i] == 1]
+        if packed_names:
+            fig_bar, ax_bar = plt.subplots(figsize=(6, len(packed_names)*0.5 + 1))
+            bars = ax_bar.barh(packed_names, packed_vals, color="seagreen", edgecolor="black")
+            ax_bar.bar_label(bars, padding=3)
+            ax_bar.set_title("Value per Packed Item")
+            st.pyplot(fig_bar)
+
+    # Chromosome Heatmap
+    with st.expander("Chromosome Visualization"):
+        fig_heat, ax_heat = plt.subplots(figsize=(12, 1.2))
+        ax_heat.imshow([best_chr], aspect="auto", cmap="RdYlGn", vmin=0, vmax=1)
+        ax_heat.set_xticks(range(NUM_ITEMS))
+        ax_heat.set_xticklabels(NAMES, rotation=45, ha="right", fontsize=8)
+        ax_heat.set_yticks([])
+        ax_heat.set_title("Best Chromosome Structure (Green = Packed)")
+        plt.tight_layout()
+        st.pyplot(fig_heat)
+
 else:
-    st.info("Configure GA parameters in the sidebar and click 'Run Algorithm'.")
+    st.info("Configure GA parameters in the sidebar and click 'Run Genetic Algorithm'.")
+    st.markdown("""
+    **Genetic Algorithm Process:**
+    - **Selection:** Tournament selection chooses the best from a random subset.
+    - **Crossover:** Single-point crossover combines parent traits.
+    - **Mutation:** Random bit flips maintain genetic diversity.
+    - **Elitism:** The best solution is always preserved to the next generation.
+    """)
