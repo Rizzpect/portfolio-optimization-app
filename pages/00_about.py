@@ -6,21 +6,14 @@ st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
     /* Premium Typography - Robust Fix for Icon Glitch */
-    html, body, [class*="st-"] {
+    html, body, [class*="st-"]:not(.material-icons):not(.material-symbols-outlined):not(i):not(svg) {
         font-family: 'Outfit', sans-serif !important;
     }
     
     /* Ensure Streamlit Icons (Material Icons) are NOT overridden */
     .material-icons, 
-    .material-symbols-outlined,
-    [data-testid="stSidebarNav"] span,
-    [data-testid="stSidebarCollapse"] span,
-    [data-testid="stSidebarCollapse"] i,
-    [data-testid="stSidebarCollapse"] svg,
-    [class*="st-emotion-cache"] i,
-    [class*="st-emotion-cache"] svg,
-    [class^="st-"] i {
-        font-family: 'Material Icons' !important;
+    .material-symbols-outlined {
+        font-family: 'Material Symbols Outlined', 'Material Icons' !important;
         font-feature-settings: 'liga' !important;
     }
 
@@ -104,7 +97,54 @@ st.markdown("""
     [data-testid="stSidebar"] img {
         border: 3px solid rgba(0, 201, 255, 0.2);
         padding: 5px;
+        border-radius: 50%;
         animation: float 4s ease-in-out infinite;
+    }
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-8px); }
+    }
+
+    /* ── Gradient Divider ── */
+    .gradient-divider {
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #00C9FF, #92FE9D, transparent);
+        border: none;
+        margin: 1.5rem 0;
+        animation: shimmer 3s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+        0%, 100% { opacity: 0.6; }
+        50% { opacity: 1; }
+    }
+
+    /* ── Page Link Hover Cards ── */
+    [data-testid="stPageLink"] {
+        transition: all 0.25s ease !important;
+        border-radius: 8px !important;
+    }
+    [data-testid="stPageLink"]:hover {
+        background: rgba(0, 201, 255, 0.06) !important;
+        transform: translateX(4px);
+        box-shadow: -3px 0 0 0 #00C9FF;
+    }
+
+    /* ── Stagger the nav cards on About page ── */
+    .card-1 [data-testid="stPageLink"]:nth-child(1) { animation: slideInUp 0.4s ease-out 0.1s both; }
+    .card-1 [data-testid="stPageLink"]:nth-child(2) { animation: slideInUp 0.4s ease-out 0.2s both; }
+    .card-1 [data-testid="stPageLink"]:nth-child(3) { animation: slideInUp 0.4s ease-out 0.3s both; }
+    .card-1 [data-testid="stPageLink"]:nth-child(4) { animation: slideInUp 0.4s ease-out 0.4s both; }
+    .card-2 [data-testid="stPageLink"]:nth-child(1) { animation: slideInUp 0.4s ease-out 0.3s both; }
+    .card-2 [data-testid="stPageLink"]:nth-child(2) { animation: slideInUp 0.4s ease-out 0.4s both; }
+    .card-2 [data-testid="stPageLink"]:nth-child(3) { animation: slideInUp 0.4s ease-out 0.5s both; }
+
+    /* ── Subtle gradient text for subheaders ── */
+    .explore-heading {
+        background: linear-gradient(135deg, #00C9FF 30%, #92FE9D 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 1.4rem;
+        font-weight: 700;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -119,7 +159,7 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-st.markdown("---")
+st.markdown('<div class="gradient-divider"></div>', unsafe_allow_html=True)
 
 # 👤 Student Info in Sidebar (Compact Version)
 with st.sidebar:
@@ -134,7 +174,7 @@ with st.sidebar:
     st.markdown("---")
 
 # 🛠️ Dashboard Navigation Cards (Wrapped in Animation Classes)
-st.subheader("Explore Modules")
+st.markdown('<p class="explore-heading">Explore Modules</p>', unsafe_allow_html=True)
 
 col1, col2 = st.columns(2)
 
@@ -159,5 +199,9 @@ with col2:
         st.page_link("pages/07_simulated_annealing.py", label="Simulated Annealing (Timetable)", icon="🔥")
     st.markdown('</div>', unsafe_allow_html=True)
 
-st.markdown("---")
-st.caption("Developed by Rizwan - 2026")
+st.markdown('<div class="gradient-divider"></div>', unsafe_allow_html=True)
+st.markdown("""
+<div style="text-align:center; opacity:0.5; font-size:0.8rem; padding: 8px 0;">
+    Built with ❤️ by Rizwan — 2026
+</div>
+""", unsafe_allow_html=True)
